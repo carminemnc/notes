@@ -21,6 +21,7 @@ from yellowbrick.cluster import *  # for clustering diagnostics
 from termcolor import colored # for output colors
 from IPython.display import Markdown as md
 from matplotlib import font_manager
+import matplotlib.lines as lines
 
 # pre-processing
 from scipy.stats import uniform
@@ -348,7 +349,13 @@ class Voyager:
     
 class Leonardo:
     
-    def binary_target_ratio_plot(self,data,column_name,target_zero_name,target_one_name,font_color='white',plot_title=None):
+    def binary_ratio_plot(self,data,
+                          column_name,
+                          target_zero_name,
+                          target_one_name,
+                          font_color='white',
+                          figsize=(6.5,2),
+                          plot_title=None):
         
         """
         Plot function for a binary target column.
@@ -358,13 +365,15 @@ class Leonardo:
         data: `pandas dataframe object`
             Pandas dataframe object.
         column_name: `str`
-            The dataframe column's name of the target binary column.
+            The dataframe column's name of the binary column.
         target_zero_name: `str`
             Custom name for target "0" class.
         target_one_name: `str`
             Custom name for target "1" class.
         font_color: `str`
             Font color for plot's text.
+        font_color: `tuple`
+            Inherited from matplotlib. Figure size in tuple `(width,length)`
         column_name: `str`
             Custom plot title.
 
@@ -381,7 +390,7 @@ class Leonardo:
         tonename = target_one_name
         
         '''Plot'''
-        fig, ax = plt.subplots(1,1,figsize=(6.5, 2),dpi=150)
+        fig, ax = plt.subplots(1,1,figsize=figsize,dpi=150)
         # barplots
         ax.barh(column_name,tratio[0],alpha=0.9)
         ax.barh(column_name,tratio[1],left=tratio[0])
@@ -408,6 +417,38 @@ class Leonardo:
         plt.show()
         
         return
+    
+    def insights_box(obj_figure,
+                     text_hspace,
+                     text_vpos,
+                     text_fontsize,
+                     text_color,
+                     text):
+        
+        """
+        Plot function for adding an insights section on right side of the plot
+        
+        Parameters:
+        -----------
+        obj_figure: `matplotlib figure object`
+            Matplotlib figure object or plot.
+        text_hspace: `float`
+            The dataframe column's name of the binary column.
+        text_vpos: `float`
+            The dataframe column's name of the binary column.
+        text_fontsize: `int`
+            The dataframe column's name of the binary column.
+        text_color: `str`
+            The dataframe column's name of the binary column.
+        text: `str`
+            Insights text.
+        """
+        
+        line = lines.Line2D([1.01, 1.01], [0.1, 0.9], transform=obj_figure.transFigure,figure=obj_figure,color=text_color,lw=0.5)
+        obj_figure.lines.extend([line])
+        obj_figure.text(text_hspace,text_vpos,text,fontsize=text_fontsize,color=text_color)
+        
+        return 
     
 class Rita:
     
