@@ -418,12 +418,14 @@ class Leonardo:
         
         return
     
-    def insights_box(obj_figure,
-                     text_hspace,
-                     text_vpos,
-                     text_fontsize,
-                     text_color,
-                     text):
+    def insights_box(self,
+                     obj_figure,
+                     text,
+                     text_fontsize=10,
+                     text_color='black',
+                     text_x=1.1,
+                     text_y=0.1,
+                     font_weight='normal'):
         
         """
         Plot function for adding an insights section on right side of the plot
@@ -431,22 +433,24 @@ class Leonardo:
         Parameters:
         -----------
         obj_figure: `matplotlib figure object`
-            Matplotlib figure object or plot.
-        text_hspace: `float`
-            The dataframe column's name of the binary column.
-        text_vpos: `float`
-            The dataframe column's name of the binary column.
+            The Matplotlib figure object or plot to which the insights section will be added.
+        text_x: `float`, Default `1.1`
+            The position to place the text. By default, this is in data coordinates.
+        text_y: `float`,`0.1`
+            The position to place the text. By default, this is in data coordinates.
         text_fontsize: `int`
-            The dataframe column's name of the binary column.
+            The font size of the text in the insights section.
         text_color: `str`
-            The dataframe column's name of the binary column.
+            The color of the text in the insights section, specified as a valid Matplotlib color string.
         text: `str`
-            Insights text.
+            The text to be displayed in the insights section.
+        font_weight: `str`, Default: `normal`
+            The font weight of the text in the insights section, e.g., 'normal', 'bold', 'light'.
         """
         
         line = lines.Line2D([1.01, 1.01], [0.1, 0.9], transform=obj_figure.transFigure,figure=obj_figure,color=text_color,lw=0.5)
         obj_figure.lines.extend([line])
-        obj_figure.text(text_hspace,text_vpos,text,fontsize=text_fontsize,color=text_color)
+        obj_figure.text(text_x,text_y,text,fontsize=text_fontsize,color=text_color,fontweight=font_weight)
         
         return 
     
@@ -495,46 +499,47 @@ class Rita:
         ''' Advanced mode'''   
         if mode=='advanced':
             
-            for nclstr in clusters_range:
+            # Calculate the number of rows needed
+            num_rows = (len(clusters_range) + 1) // 2  # This will round up to the nearest integer
+
+            # Create a figure with 4 columns and the calculated number of rows
+            fig, axes = plt.subplots(nrows=num_rows, ncols=4, figsize=(20, 5*num_rows))
+            fig.tight_layout(pad=3)
+            fig.set_facecolor(bg)
+
+            for idx, nclstr in enumerate(clusters_range):
+                row = idx // 2
+                col = (idx % 2) * 2  # This will alternate between 0 and 2
                 
                 # fitting kmeans
-                km = KMeans(n_clusters=nclstr,init='k-means++',n_init=12,max_iter=100)
-                # plot settings
-                fig, ax = plt.subplots(ncols=2,figsize=(10,5))
-                fig.tight_layout(pad=2)
-                fig.set_facecolor(bg)
-                fig.suptitle(
-                    f'Clustering diagnostic on {nclstr} clusters \
-                    \n\n ASS: {round(silhouette_score(data,km.fit_predict(data)),4)}', 
-                    fontsize=12,
-                    y=1.10,
-                    weight='bold',
-                    color=lbl)
+                km = KMeans(n_clusters=nclstr, init='k-means++', n_init=12, max_iter=100)
                 
-                for axis in range(0,2):
-                    ax[axis].grid(False)
-                    ax[axis].set_facecolor(bg)
-                    ax[axis].xaxis.label.set_color(lbl)
-                    ax[axis].tick_params(axis='x', colors=lbl)
-                    ax[axis].tick_params(axis='y', colors=lbl)
-                    ax[axis].get_yaxis().set_visible(False)
+                # Calculate silhouette score
+                silhouette_avg = round(silhouette_score(data, km.fit_predict(data)), 4)
                 
                 # silhouette coefficient plot
-                silhouette = SilhouetteVisualizer(km, colors='yellowbrick',ax=ax[0])
+                silhouette = SilhouetteVisualizer(km, colors='yellowbrick', ax=axes[row, col])
                 silhouette.fit(data)
-                ax[0].set_title(f'Silhouette score for {nclstr} clusters',color=lbl)
-                ax[0].legend(labelcolor=lbl,loc='lower left')
                 
-                # intercluster distance
-                icd = InterclusterDistance(km,ax=ax[1],legend_loc='lower left')
+                # intercluster distance plot
+                icd = InterclusterDistance(km, ax=axes[row, col+1], legend_loc='lower left')
                 icd.fit(data)
-                ax[1].get_xaxis().set_visible(False)
+
+                # Add a title in the middle of the cell
+                middle_ax = fig.add_subplot(num_rows, 2, idx+1, frame_on=False)
+                middle_ax.set_xticks([])
+                middle_ax.set_yticks([])
+                middle_ax.set_title(f'Clustering diagnostic on {nclstr} clusters\nASS: {silhouette_avg}', 
+                                    fontsize=12, weight='bold', color=lbl, y=1.0)
                 
-                # show
-                fig.show()
+            # Remove any unused subplots
+            for row in range(num_rows):
+                if row * 2 + 1 >= len(clusters_range):
+                    fig.delaxes(axes[row, 2])
+                    fig.delaxes(axes[row, 3])
+
+            plt.tight_layout()
+            plt.show()
                 
 
         return
-    
-    
-    
