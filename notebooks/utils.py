@@ -56,7 +56,7 @@ from mango import Tuner # bayesian optimization package
 # settings
 from credentials import credentials
 gstyle = 'https://raw.githubusercontent.com/carminemnc/utils/main/'
-# plt.style.use('https://raw.githubusercontent.com/carminemnc/utils/main/dark-theme.mplstyle') # custom matplotib style
+plt.style.use('https://raw.githubusercontent.com/carminemnc/utils/main/dark-theme.mplstyle') # custom matplotib style
 pd.set_option('display.max_columns', 200)
 
 
@@ -418,13 +418,13 @@ class Leonardo:
         
         return
     
-    def insights_box(self,
-                     obj_figure,
+    @staticmethod
+    def insights_box(obj_figure,
                      text,
-                     text_fontsize=10,
+                     text_fontsize=14,
                      text_color='black',
-                     text_x=1.1,
-                     text_y=0.1,
+                     text_x=1.03,
+                     text_y=0.7,
                      font_weight='normal'):
         
         """
