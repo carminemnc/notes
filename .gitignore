@@ -2,3 +2,4 @@
 /data/
 /notebooks/credentials.py
 .Rproj.user
+*.csv
